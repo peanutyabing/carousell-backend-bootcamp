@@ -9,12 +9,22 @@ class ListingsController extends BaseController {
   /** if a method in this extended class AND the base class has the same name, the one in the extended class will run over the base method */
   // Create listing. Requires authentication.
   async insertOne(req, res) {
-    const { title, category, condition, price, description, shippingDetails } =
-      req.body;
+    const {
+      title,
+      category,
+      condition,
+      price,
+      description,
+      shippingDetails,
+      sellerEmail,
+    } = req.body;
     try {
       // TODO: Get seller email from auth, query Users table for seller ID
-
-      // Create new listing
+      const [seller] = await this.userModel.findOrCreate({
+        where: { email: sellerEmail },
+      });
+      const sellerId = seller.dataValues.id;
+      // // Create new listing
       const newListing = await this.model.create({
         title: title,
         category: category,
@@ -23,7 +33,7 @@ class ListingsController extends BaseController {
         description: description,
         shippingDetails: shippingDetails,
         buyerId: null,
-        sellerId: 1, // TODO: Replace with seller ID of authenticated seller
+        sellerId: sellerId,
       });
 
       // Respond with new listing
